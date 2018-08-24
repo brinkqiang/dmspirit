@@ -1,7 +1,7 @@
 #pragma once
 
 #define BOOST_REGEX_NO_LIB
-#include "boost/spirit.hpp"
+#include "boost/spirit/include/classic.hpp"
 #include <list>
 
 namespace bs = boost::spirit;

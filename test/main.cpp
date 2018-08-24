@@ -1,11 +1,11 @@
-#include "stdafx.h"
+
 #include <fstream>
 #include <sstream>
 #include <locale>
 
 #include "cpp_class_grammar.h"
 
-int _tmain(int argc, _TCHAR* argv[])
+int _tmain(int argc, char* argv[])
 {
     std::vector<std::wstring> filelist;
     filelist.reserve(argc - 1);
