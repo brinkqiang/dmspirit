@@ -20,7 +20,6 @@
 #include <boost/spirit/home/lex/lexer/lexertl/static_version.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/scoped_array.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////
 namespace boost { namespace spirit { namespace lex { namespace lexertl
@@ -51,7 +50,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
         {
             using namespace std;        // some systems have size_t in ns std
             size_t len = strlen(source);
-            boost::scoped_array<wchar_t> result (new wchar_t[len+1]);
+            std::auto_ptr<wchar_t> result (new wchar_t[len+1]);
             result.get()[len] = '\0';
 
             // working with wide character streams is supported only if the
@@ -415,7 +414,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
             {
                 os_ << "            std::size_t index = *curr_++\n";
             }
-            os_ << "            bol = (index == '\\n') ? true : false;\n";
+            os_ << "            bol = (index == '\n') ? true : false;\n";
             os_ << "            std::size_t const state_ = ptr_[\n";
             os_ << "                lookup_[static_cast<std::size_t>(index)]];\n";
 
@@ -442,7 +441,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
             {
                 os_ << "            std::size_t index = *curr_++\n";
             }
-            os_ << "            bol = (index == '\\n') ? true : false;\n";
+            os_ << "            bol = (index == '\n') ? true : false;\n";
             os_ << "            std::size_t const state_ = ptr_[\n";
             os_ << "                lookup_[static_cast<std::size_t>(index)]];\n";
 
@@ -469,7 +468,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
             {
                 os_ << "            std::size_t index = *curr_++\n";
             }
-            os_ << "            bol = (index == '\\n') ? true : false;\n";
+            os_ << "            bol = (index == '\n') ? true : false;\n";
             os_ << "            std::size_t const state_ = ptr_[\n";
             os_ << "                lookup_[static_cast<std::size_t>(index)]];\n";
 
@@ -577,7 +576,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
 
         if (sm_.data()._seen_BOL_assertion)
         {
-            os_ << "        bol_ = (*start_token_ == '\\n') ? true : false;\n";
+            os_ << "        bol_ = (*start_token_ == '\n') ? true : false;\n";
         }
 
         os_ << "        id_ = npos;\n";
@@ -749,7 +748,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
                     }
                     if (iter_->eol_index != boost::lexer::npos)
                     {
-                        os_ << "\n    if (ch_ == '\\n') goto state" << dfa_
+                        os_ << "\n    if (ch_ == '\n') goto state" << dfa_
                             << '_' << iter_->eol_index << ";\n";
                     }
                     os_ << "    ++curr_;\n";

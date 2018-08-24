@@ -16,6 +16,7 @@
 #include <algorithm>    // for std::swap
 #include <exception>    // for std::exception
 #include <boost/limits.hpp>
+#include <boost/iterator.hpp>
 
 #include <boost/spirit/home/classic/namespace.hpp>
 #include <boost/spirit/home/classic/core/assert.hpp> // for BOOST_SPIRIT_ASSERT
@@ -193,7 +194,7 @@ class buf_id_check
         }
 
         // called to verify that everything is okay.
-        void check_if_valid() const
+        void check() const
         {
             if (buf_id != *shared_buf_id)
             {
@@ -225,7 +226,7 @@ class no_check
         no_check(no_check const&) {}
         void destroy() {}
         void swap(no_check&) {}
-        void check_if_valid() const {}
+        void check() const {}
         void clear_queue() {}
 };
 
@@ -759,19 +760,24 @@ class inner
 
 namespace iterator_ { namespace impl {
 
-// Meta-function to generate a std::iterator<>-like base class for multi_pass.
+// Meta-function to generate a std::iterator<> base class for multi_pass. This
+//  is used mainly to improve conformance of compilers not supporting PTS
+//  and thus relying on inheritance to recognize an iterator.
+// We are using boost::iterator<> because it offers an automatic workaround
+//  for broken std::iterator<> implementations.
 template <typename InputPolicyT, typename InputT>
 struct iterator_base_creator
 {
     typedef typename InputPolicyT::BOOST_NESTED_TEMPLATE inner<InputT> input_t;
 
-    struct type {
-        typedef std::forward_iterator_tag iterator_category;
-        typedef typename input_t::value_type value_type;
-        typedef typename input_t::difference_type difference_type;
-        typedef typename input_t::pointer pointer;
-        typedef typename input_t::reference reference;
-    };
+    typedef boost::iterator
+    <
+        std::forward_iterator_tag,
+        typename input_t::value_type,
+        typename input_t::difference_type,
+        typename input_t::pointer,
+        typename input_t::reference
+    > type;
 };
 
 }}
@@ -994,7 +1000,7 @@ reference
 multi_pass<InputT, InputPolicy, OwnershipPolicy, CheckingPolicy, StoragePolicy>::
 operator*() const
 {
-    CHP::check_if_valid();
+    CHP::check();
     return SP::dereference(*this);
 }
 
@@ -1028,7 +1034,7 @@ multi_pass<InputT, InputPolicy, OwnershipPolicy, CheckingPolicy, StoragePolicy>&
 multi_pass<InputT, InputPolicy, OwnershipPolicy, CheckingPolicy, StoragePolicy>::
 operator++()
 {
-    CHP::check_if_valid();
+    CHP::check();
     SP::increment(*this);
     return *this;
 }

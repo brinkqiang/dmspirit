@@ -98,16 +98,17 @@ namespace boost { namespace spirit
                 }
                 static void move(void* const* src, void** dest)
                 {
+                    reinterpret_cast<T*>(dest)->~T();
                     *reinterpret_cast<T*>(dest) =
                         *reinterpret_cast<T const*>(src);
                 }
-                static std::basic_istream<Char>&
+                static std::basic_istream<Char>& 
                 stream_in (std::basic_istream<Char>& i, void** obj)
                 {
                     i >> *reinterpret_cast<T*>(obj);
                     return i;
                 }
-                static std::basic_ostream<Char>&
+                static std::basic_ostream<Char>& 
                 stream_out(std::basic_ostream<Char>& o, void* const* obj)
                 {
                     o << *reinterpret_cast<T const*>(obj);
@@ -143,16 +144,17 @@ namespace boost { namespace spirit
                 }
                 static void move(void* const* src, void** dest)
                 {
+                    (*reinterpret_cast<T**>(dest))->~T();
                     **reinterpret_cast<T**>(dest) =
                         **reinterpret_cast<T* const*>(src);
                 }
-                static std::basic_istream<Char>&
+                static std::basic_istream<Char>& 
                 stream_in(std::basic_istream<Char>& i, void** obj)
                 {
                     i >> **reinterpret_cast<T**>(obj);
                     return i;
                 }
-                static std::basic_ostream<Char>&
+                static std::basic_ostream<Char>& 
                 stream_out(std::basic_ostream<Char>& o, void* const* obj)
                 {
                     o << **reinterpret_cast<T* const*>(obj);
@@ -198,7 +200,7 @@ namespace boost { namespace spirit
             // value of the required type to the hold_any instance you want to
             // stream to. This assignment has to be executed before the actual
             // call to the operator>>().
-            BOOST_ASSERT(false &&
+            BOOST_ASSERT(false && 
                 "Tried to insert from a std istream into an empty "
                 "hold_any instance");
             return i;
@@ -222,8 +224,10 @@ namespace boost { namespace spirit
         explicit basic_hold_any(T const& x)
           : table(spirit::detail::get_table<T>::template get<Char>()), object(0)
         {
-            new_object(object, x,
-                typename spirit::detail::get_table<T>::is_small());
+            if (spirit::detail::get_table<T>::is_small::value)
+                new (&object) T(x);
+            else
+                object = new T(x);
         }
 
         basic_hold_any()
@@ -295,40 +299,9 @@ namespace boost { namespace spirit
             return *this;
         }
 
-        template <typename T>
-        static void new_object(void*& object, T const& x, mpl::true_)
-        {
-            new (&object) T(x);
-        }
-
-        template <typename T>
-        static void new_object(void*& object, T const& x, mpl::false_)
-        {
-            object = new T(x);
-        }
-
         // assignment operator
-#ifdef BOOST_HAS_RVALUE_REFS
-        template <typename T>
-        basic_hold_any& operator=(T&& x)
-        {
-            return assign(std::forward<T>(x));
-        }
-#else
-        template <typename T>
-        basic_hold_any& operator=(T& x)
-        {
-            return assign(x);
-        }
-
         template <typename T>
         basic_hold_any& operator=(T const& x)
-        {
-            return assign(x);
-        }
-#endif
-        // copy assignment operator
-        basic_hold_any& operator=(basic_hold_any const& x)
         {
             return assign(x);
         }
@@ -384,14 +357,14 @@ namespace boost { namespace spirit
     // because spirit::hold_any is used only in contexts where these operators
     // do exist
         template <typename Char_>
-        friend inline std::basic_istream<Char_>&
+        friend inline std::basic_istream<Char_>& 
         operator>> (std::basic_istream<Char_>& i, basic_hold_any<Char_>& obj)
         {
             return obj.table->stream_in(i, &obj.object);
         }
 
         template <typename Char_>
-        friend inline std::basic_ostream<Char_>&
+        friend inline std::basic_ostream<Char_>& 
         operator<< (std::basic_ostream<Char_>& o, basic_hold_any<Char_> const& obj)
         {
             return obj.table->stream_out(o, &obj.object);
@@ -432,6 +405,15 @@ namespace boost { namespace spirit
     {
         typedef BOOST_DEDUCED_TYPENAME remove_reference<T>::type nonref;
 
+#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+        // If 'nonref' is still reference type, it means the user has not
+        // specialized 'remove_reference'.
+
+        // Please use BOOST_BROKEN_COMPILER_TYPE_TRAITS_SPECIALIZATION macro
+        // to generate specialization of remove_reference for your class
+        // See type traits library documentation for details
+        BOOST_STATIC_ASSERT(!is_reference<nonref>::value);
+#endif
 
         nonref* result = any_cast<nonref>(&operand);
         if(!result)
@@ -444,6 +426,11 @@ namespace boost { namespace spirit
     {
         typedef BOOST_DEDUCED_TYPENAME remove_reference<T>::type nonref;
 
+#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+        // The comment in the above version of 'any_cast' explains when this
+        // assert is fired and what to do.
+        BOOST_STATIC_ASSERT(!is_reference<nonref>::value);
+#endif
 
         return any_cast<nonref const&>(const_cast<basic_hold_any<Char> &>(operand));
     }

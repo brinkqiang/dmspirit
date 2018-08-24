@@ -20,12 +20,12 @@ namespace boost { namespace spirit { namespace qi { namespace detail
     struct permute_function
     {
         permute_function(
-            Iterator& first_, Iterator const& last_
-          , Context& context_, Skipper const& skipper_)
-          : first(first_)
-          , last(last_)
-          , context(context_)
-          , skipper(skipper_)
+            Iterator& first, Iterator const& last
+          , Context& context, Skipper const& skipper)
+          : first(first)
+          , last(last)
+          , context(context)
+          , skipper(skipper)
         {
         }
 
@@ -35,6 +35,22 @@ namespace boost { namespace spirit { namespace qi { namespace detail
             // return true if the parser succeeds and the slot is not yet taken
             if (!*taken && component.parse(first, last, context, skipper, attr))
             {
+                *taken = true;
+                ++taken;
+                return true;
+            }
+            ++taken;
+            return false;
+        }
+
+        template <typename Component, typename Attribute>
+        bool operator()(Component const& component, boost::optional<Attribute>& attr)
+        {
+            // return true if the parser succeeds and the slot is not yet taken
+            Attribute val;
+            if (!*taken && component.parse(first, last, context, skipper, val))
+            {
+                attr = val;
                 *taken = true;
                 ++taken;
                 return true;
