@@ -5,13 +5,13 @@
 
 #include "cpp_class_grammar.h"
 
-int _tmain(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
-    std::vector<std::wstring> filelist;
+    std::vector<std::string> filelist;
     filelist.reserve(argc - 1);
     for (int i = 1; i < argc; ++i) {
-        std::wstring file = argv[i];
-        if (file.substr(file.length() - 2, 2) == L".h") {
+        std::string file = argv[i];
+        if (file.substr(file.length() - 2, 2) == ".h") {
             filelist.push_back(argv[i]);
         }
     }
@@ -30,7 +30,7 @@ int _tmain(int argc, char* argv[])
     std::string input = buffer.str();
 
     CppClassGrammar gramar;
-    bool ret = gramar.doParse(input); // è§£æžåŽï¼Œç”Ÿæˆä¸€ä¸ªclassä¿¡æ¯æ ‘
+    bool ret = gramar.doParse(input); // ½âÎöºó£¬Éú³ÉÒ»¸öclassÐÅÏ¢Ê÷
 
 
     return 0;

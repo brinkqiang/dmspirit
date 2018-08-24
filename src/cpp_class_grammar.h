@@ -1,14 +1,16 @@
 #pragma once
 
-#define BOOST_REGEX_NO_LIB
 #include "boost/spirit/include/classic.hpp"
 #include <list>
 
-namespace bs = boost::spirit;
-
+namespace bs
+{
+    using namespace boost::spirit;
+    using namespace BOOST_SPIRIT_CLASSIC_NS;
+}
 namespace cpp_grammar {
 
-    // ç±»å‹
+    // ÀàĞÍ
     enum type {
         t_undifined = 0,
         t_void,
@@ -18,26 +20,26 @@ namespace cpp_grammar {
         t_c_str,
     };
 
-    // å‡½æ•°å‚æ•°ä¿¡æ¯
+    // º¯Êı²ÎÊıĞÅÏ¢
     struct _func_param {
-        type m_paramType;            // å‚æ•°ç±»å‹
-        std::string m_paramName;    // å‚æ•°åç§°
+        type m_paramType;            // ²ÎÊıÀàĞÍ
+        std::string m_paramName;    // ²ÎÊıÃû³Æ
     };
 
-    // å‡½æ•°ä¿¡æ¯
+    // º¯ÊıĞÅÏ¢
     struct _function {
         type m_returnType;
         std::string m_funcName;
         std::list<_func_param> m_funcParams;
     };
 
-    // ç±»ä¿¡æ¯
+    // ÀàĞÅÏ¢
     struct _class {
         std::string m_className;
         std::list<_function> m_funcs;
     };
 
-    // æ ‘ç»“æ„
+    // Ê÷½á¹¹
     template<class _Value>
     class Tree {
     public:
@@ -50,11 +52,11 @@ namespace cpp_grammar {
         void print();
 
     public:
-        _Value m_value;                    // å½“å‰èŠ‚ç‚¹å­˜å‚¨çš„å€¼
-        std::vector<Tree*> m_childlers;    // å­èŠ‚ç‚¹åˆ—è¡¨
+        _Value m_value;                    // µ±Ç°½Úµã´æ´¢µÄÖµ
+        std::vector<Tree*> m_childlers;    // ×Ó½ÚµãÁĞ±í
 
     private:
-        Tree* m_parent;                    // çˆ¶èŠ‚ç‚¹
+        Tree* m_parent;                    // ¸¸½Úµã
     };
     typedef Tree<_class> class_tree;
 
@@ -73,18 +75,18 @@ struct CppClassGrammar : public bs::grammar < CppClassGrammar > {
     template<typename ScannerT>
     struct definition {
 
-        bs::rule<ScannerT> _cpp_key;            // ç±»å…³é”®å­—ï¼ˆclassï¼‰
-        bs::rule<ScannerT> _cpp_type;            // ç±»å‹
-        bs::rule<ScannerT> _cpp_comment;        // å•è¡Œæ³¨é‡Š
+        bs::rule<ScannerT> _cpp_key;            // Àà¹Ø¼ü×Ö£¨class£©
+        bs::rule<ScannerT> _cpp_type;            // ÀàĞÍ
+        bs::rule<ScannerT> _cpp_comment;        // µ¥ĞĞ×¢ÊÍ
 
-        bs::rule<ScannerT> _identifier;            // æ ‡ç¤ºï¼ˆè§£æç±»åã€å‡½æ•°åã€å‚æ•°åç­‰ï¼‰
-        bs::rule<ScannerT> _access_ctrl;        // è®¿é—®æ§åˆ¶æƒé™ï¼ˆpublicã€protectedã€privateï¼‰
+        bs::rule<ScannerT> _identifier;            // ±êÊ¾£¨½âÎöÀàÃû¡¢º¯ÊıÃû¡¢²ÎÊıÃûµÈ£©
+        bs::rule<ScannerT> _access_ctrl;        // ·ÃÎÊ¿ØÖÆÈ¨ÏŞ£¨public¡¢protected¡¢private£©
 
-        bs::rule<ScannerT> _tag_brace_nest;        // å‡½æ•°å†…çš„åµŒå¥—å¤§æ‹¬å·(åŒ…æ‹¬å‡½æ•°ä½“)
-        bs::rule<ScannerT> _func_param;            // å‡½æ•°å‚æ•°ï¼ˆç±»å‹ + å‚æ•°åï¼‰
-        bs::rule<ScannerT> _function;            // å‡½æ•°
+        bs::rule<ScannerT> _tag_brace_nest;        // º¯ÊıÄÚµÄÇ¶Ì×´óÀ¨ºÅ(°üÀ¨º¯ÊıÌå)
+        bs::rule<ScannerT> _func_param;            // º¯Êı²ÎÊı£¨ÀàĞÍ + ²ÎÊıÃû£©
+        bs::rule<ScannerT> _function;            // º¯Êı
 
-        bs::rule<ScannerT> _class;                // ç±»
+        bs::rule<ScannerT> _class;                // Àà
         bs::rule<ScannerT> _root;
 
         definition(const CppClassGrammar& self);

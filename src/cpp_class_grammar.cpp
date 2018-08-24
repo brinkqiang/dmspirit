@@ -5,7 +5,6 @@
 
 using namespace cpp_grammar;
 
-
 namespace cpp_grammar {
 
     template<class _Value>
@@ -33,21 +32,21 @@ namespace cpp_grammar {
 
     }
 
-    // è§£æCLASSç»“æ„åç‰¹å®šçš„è¡Œä¸ºæ“ä½œ
+    // ½âÎöCLASS½á¹¹ºóÌØ¶¨µÄĞĞÎª²Ù×÷
     class class_action {
     public:
         typedef boost::function<void(char)> CallbackOne;
         typedef boost::function<void(const char*, const char*)> CallbackTwo;
 
-        CallbackTwo m_comment;            // æ³¨é‡Š
-        CallbackTwo m_className;        // ç±»å
-        CallbackOne m_innerClass;        // è¿›ç±»
-        CallbackOne m_outterClass;        // å‡ºç±»
+        CallbackTwo m_comment;            // ×¢ÊÍ
+        CallbackTwo m_className;        // ÀàÃû
+        CallbackOne m_innerClass;        // ½øÀà
+        CallbackOne m_outterClass;        // ³öÀà
 
-        CallbackTwo m_funcReturn;        // å‡½æ•°è¿”å›ç±»å‹
-        CallbackTwo m_funcName;            // å‡½æ•°å
-        CallbackTwo m_funcParamType;    // å‡½æ•°å‚æ•°ç±»å‹
-        CallbackTwo m_funcParamName;    // å‡½æ•°å‚æ•°åç§°
+        CallbackTwo m_funcReturn;        // º¯Êı·µ»ØÀàĞÍ
+        CallbackTwo m_funcName;            // º¯ÊıÃû
+        CallbackTwo m_funcParamType;    // º¯Êı²ÎÊıÀàĞÍ
+        CallbackTwo m_funcParamName;    // º¯Êı²ÎÊıÃû³Æ
 
         class_action()
             : m_root(NULL)
@@ -67,41 +66,41 @@ namespace cpp_grammar {
         class_tree& getTree() { return m_root; }
 
     private:
-        // å•è¡Œæ³¨é‡Š
+        // µ¥ĞĞ×¢ÊÍ
         void comment(const char* start, const char* end) {
             std::string s(start, end);
         }
-        // ç±»å
+        // ÀàÃû
         void className(const char* start, const char* end) {
             _class c;
             c.m_className.assign(start, end);
             delete m_newNode;
             m_newNode = m_node->newTree(c);
         }
-        // è¿›/å‡ºç±»
+        // ½ø/³öÀà
         void innerClass(char) { m_node->addChild(m_newNode); m_node = m_newNode; m_newNode = NULL; }
         void outterClass(char) { m_node = m_node->parent(); }
-        // å‡½æ•°è¿”å›ç±»å‹
+        // º¯Êı·µ»ØÀàĞÍ
         void funcReturn(const char* start, const char* end) {
             _function f;
             f.m_returnType = ParseType(start, end);
             m_node->m_value.m_funcs.push_back(f);
         }
-        // å‡½æ•°åç§°
+        // º¯ÊıÃû³Æ
         void funcName(const char* start, const char* end) {
             m_node->m_value.m_funcs.back().m_funcName.assign(start, end);
         }
-        // å‡½æ•°å‚æ•°ç±»å‹
+        // º¯Êı²ÎÊıÀàĞÍ
         void funcParamType(const char* start, const char* end) {
             _func_param fp;
             fp.m_paramName.assign(start, end);
             m_node->m_value.m_funcs.back().m_funcParams.push_back(fp);
         }
-        // å‡½æ•°å‚æ•°åç§°
+        // º¯Êı²ÎÊıÃû³Æ
         void funcParamName(const char* start, const char* end) {
             m_node->m_value.m_funcs.back().m_funcParams.back().m_paramType = ParseType(start, end);
         }
-        // å°†å­—ç¬¦ä¸²è½¬æ¢ä¸ºç±»å‹
+        // ½«×Ö·û´®×ª»»ÎªÀàĞÍ
         static type ParseType(const char* start, const char* end) {
             std::string s(start, end);
             if (s == "void")
@@ -116,12 +115,12 @@ namespace cpp_grammar {
         }
 
     private:
-        class_tree        m_root;            // æ ‘æ ¹èŠ‚ç‚¹
-        class_tree*        m_node;            // å½“å‰æ‰€åœ¨èŠ‚ç‚¹
-        class_tree*        m_newNode;        // æ–°æ·»åŠ çš„å­èŠ‚ç‚¹
+        class_tree        m_root;            // Ê÷¸ù½Úµã
+        class_tree*        m_node;            // µ±Ç°ËùÔÚ½Úµã
+        class_tree*        m_newNode;        // ĞÂÌí¼ÓµÄ×Ó½Úµã
     };
 
-    // åˆ é™¤å¤šè¡Œæ³¨é‡Š/**/
+    // É¾³ı¶àĞĞ×¢ÊÍ/**/
     struct EraseComment {
 
         EraseComment(const std::string& source) {
@@ -173,67 +172,67 @@ cpp_grammar::class_tree& CppClassGrammar::getTree()
 template<typename ScannerT>
 CppClassGrammar::definition<ScannerT>::definition(const CppClassGrammar& self)
 {
-    // è§£æCPPå…³é”®å­—å’Œç±»å‹
+    // ½âÎöCPP¹Ø¼ü×ÖºÍÀàĞÍ
     _cpp_key = bs::str_p("class");
     _cpp_type = bs::str_p("void") | "int" | "float" | "double"
         | (!bs::str_p("const") >> "char" >> '*');
 
-    /* è§£æå•è¡Œæ³¨é‡Š */
+    /* ½âÎöµ¥ĞĞ×¢ÊÍ */
     _cpp_comment = bs::comment_p("//")[self.m_class_action->m_comment];
 
-    /* è§£ææ ‡ç¤ºå’Œè®¿é—®æ§åˆ¶æƒé™ */
-    // 1.class class_name;                    // ç±»å
-    // 2.class class_name {}                // ç±»å
-    // 3.class class_name : public base {}    // ç±»å
-    // 4.void func();                        // å‡½æ•°å
-    // 5.void func(int name);                // å‡½æ•°å‚æ•°å
-    // 6.void func(int, int name);            // å‡½æ•°å‚æ•°å
+    /* ½âÎö±êÊ¾ºÍ·ÃÎÊ¿ØÖÆÈ¨ÏŞ */
+    // 1.class class_name;                    // ÀàÃû
+    // 2.class class_name {}                // ÀàÃû
+    // 3.class class_name : public base {}    // ÀàÃû
+    // 4.void func();                        // º¯ÊıÃû
+    // 5.void func(int name);                // º¯Êı²ÎÊıÃû
+    // 6.void func(int, int name);            // º¯Êı²ÎÊıÃû
     _identifier = *(~bs::space_p - (bs::ch_p('{') | '(' | ')' | ',' | ';' | ':'));
     _access_ctrl = (bs::str_p("public") | "protected" | "private") >> ':';
 
-    /* è§£æå‡½æ•°ä½“(ç›®å‰åªè§£ææ‹¬å·) */
+    /* ½âÎöº¯ÊıÌå(Ä¿Ç°Ö»½âÎöÀ¨ºÅ) */
     // 1.{ { 123 };; };;
-    _tag_brace_nest = (*(bs::anychar_p - '{' - '}'))    // åŒ¹é…ä»»æ„å­—ç¬¦åˆ°'{'æˆ–'}'ä¸ºæ­¢
-        >> '{'                                            // åŒ¹é…'{'
-        >> *_tag_brace_nest                                // é€’å½’åµŒå¥—(æ‹¬å·å†…å¯ä»¥åµŒå¥—æ‹¬å·)
-        >> *~bs::ch_p('}') >> '}'                        // åŒ¹é…ä»»æ„å­—ç¬¦åˆ°'}'ä¸ºæ­¢ï¼ŒåŒ¹é…'}'
-        >> *bs::ch_p(';');                                // åŒ¹é…';'
+    _tag_brace_nest = (*(bs::anychar_p - '{' - '}'))    // Æ¥ÅäÈÎÒâ×Ö·ûµ½'{'»ò'}'ÎªÖ¹
+        >> '{'                                            // Æ¥Åä'{'
+        >> *_tag_brace_nest                                // µİ¹éÇ¶Ì×(À¨ºÅÄÚ¿ÉÒÔÇ¶Ì×À¨ºÅ)
+        >> *~bs::ch_p('}') >> '}'                        // Æ¥ÅäÈÎÒâ×Ö·ûµ½'}'ÎªÖ¹£¬Æ¥Åä'}'
+        >> *bs::ch_p(';');                                // Æ¥Åä';'
 
-    /* è§£æå‡½æ•°å‚æ•° */
-    // 1.()                    // æ— å‚å‡½æ•°
-    // 2.(int a, int b)        // æœ‰å‚å‡½æ•°ï¼ˆåŒ…æ‹¬å‚æ•°ç±»å‹å’Œå‚æ•°åç§°ï¼‰
-    // 3.(int, int)            // æœ‰å‚å‡½æ•°ï¼ˆåªåŒ…æ‹¬å‚æ•°ç±»å‹ï¼Œçœç•¥å‚æ•°åç§°ï¼‰
+    /* ½âÎöº¯Êı²ÎÊı */
+    // 1.()                    // ÎŞ²Îº¯Êı
+    // 2.(int a, int b)        // ÓĞ²Îº¯Êı£¨°üÀ¨²ÎÊıÀàĞÍºÍ²ÎÊıÃû³Æ£©
+    // 3.(int, int)            // ÓĞ²Îº¯Êı£¨Ö»°üÀ¨²ÎÊıÀàĞÍ£¬Ê¡ÂÔ²ÎÊıÃû³Æ£©
     _func_param = _cpp_type[self.m_class_action->m_funcParamType]
         >> _identifier[self.m_class_action->m_funcParamName]
         >> *(bs::ch_p(',')
         >> _cpp_type[self.m_class_action->m_funcParamType]
         >> _identifier[self.m_class_action->m_funcParamName]);
 
-    /* è§£æå‡½æ•° */
+    /* ½âÎöº¯Êı */
     // 1.void fun() const;
     // 2.void fun() const {}
-    _function = _cpp_type[self.m_class_action->m_funcReturn]    // åŒ¹é…å‡½æ•°è¿”å›å€¼ç±»å‹
-        >> _identifier[self.m_class_action->m_funcName]            // åŒ¹é…å‡½æ•°åç§°
-        >> '(' >> !_func_param >> ')'                            // åŒ¹é…å‡½æ•°å‚æ•°(åŒ¹é…0æ¬¡æˆ–1æ¬¡)
-        >> *(bs::anychar_p - ';' - '{')                            // åŒ¹é…ä»»æ„å­—ç¬¦åˆ°';'æˆ–'{'ä¸ºæ­¢
-        >> (bs::ch_p(';') | _tag_brace_nest);                    // åŒ¹é…';'æˆ–å‡½æ•°ä½“(å‡½æ•°ä½“æ˜¯ç”¨'{'å’Œ'}'ç»„æˆçš„æˆå¯¹å­—ç¬¦)
+    _function = _cpp_type[self.m_class_action->m_funcReturn]    // Æ¥Åäº¯Êı·µ»ØÖµÀàĞÍ
+        >> _identifier[self.m_class_action->m_funcName]            // Æ¥Åäº¯ÊıÃû³Æ
+        >> '(' >> !_func_param >> ')'                            // Æ¥Åäº¯Êı²ÎÊı(Æ¥Åä0´Î»ò1´Î)
+        >> *(bs::anychar_p - ';' - '{')                            // Æ¥ÅäÈÎÒâ×Ö·ûµ½';'»ò'{'ÎªÖ¹
+        >> (bs::ch_p(';') | _tag_brace_nest);                    // Æ¥Åä';'»òº¯ÊıÌå(º¯ÊıÌåÊÇÓÃ'{'ºÍ'}'×é³ÉµÄ³É¶Ô×Ö·û)
 
-    /*è§£æCLASS*/
-    // 1.class test;                    ç±»å£°æ˜
-    // 2.class test : public base {};    ç±»å®šä¹‰
-    // å½“åŒ¹é…åˆ°ç‰¹å®šçš„å­—ç¬¦åï¼Œä¾¿ä¼šæ‰§è¡Œç‰¹å®šçš„æ“ä½œ[]
-    _class = bs::str_p("class")                                    // åŒ¹é…å­—ç¬¦ä¸²"class"
-        >> _identifier[self.m_class_action->m_className]        // åŒ¹é…ç±»å
-        >> *(bs::anychar_p - '{' - ';')                            // åŒ¹é…ä»»æ„å­—ç¬¦åˆ°'{'æˆ–';'ä¸ºæ­¢(å‰è€…æ˜¯è¯†åˆ«ç±»å®šä¹‰ï¼Œåè€…æ˜¯è¯†åˆ«ç±»å£°æ˜)
-        >> bs::ch_p('{')[self.m_class_action->m_innerClass]        // åŒ¹é…åˆ°'{'ï¼Œè¡¨ç¤ºè¿›ç±»ä¸»ä½“
-        >> *(_cpp_comment                                        // åŒ¹é…å•è¡Œæ³¨é‡Š
-            | _access_ctrl                                        // åŒ¹é…è®¿é—®æƒé™
-            | _class                                            // åŒ¹é…åµŒå¥—ç±»(é€’å½’åµŒå¥—ï¼Œç†è®ºä¸ŠNå±‚åµŒå¥—ç±»ï¼Œæ—¢åµŒå¥—ç±»ä¸­ä¹Ÿå¯èƒ½å­˜åœ¨åµŒå¥—ç±»)
-            | _function                                            // åŒ¹é…ç±»æˆå‘˜å‡½æ•°
+    /*½âÎöCLASS*/
+    // 1.class test;                    ÀàÉùÃ÷
+    // 2.class test : public base {};    Àà¶¨Òå
+    // µ±Æ¥Åäµ½ÌØ¶¨µÄ×Ö·ûºó£¬±ã»áÖ´ĞĞÌØ¶¨µÄ²Ù×÷[]
+    _class = bs::str_p("class")                                    // Æ¥Åä×Ö·û´®"class"
+        >> _identifier[self.m_class_action->m_className]        // Æ¥ÅäÀàÃû
+        >> *(bs::anychar_p - '{' - ';')                            // Æ¥ÅäÈÎÒâ×Ö·ûµ½'{'»ò';'ÎªÖ¹(Ç°ÕßÊÇÊ¶±ğÀà¶¨Òå£¬ºóÕßÊÇÊ¶±ğÀàÉùÃ÷)
+        >> bs::ch_p('{')[self.m_class_action->m_innerClass]        // Æ¥Åäµ½'{'£¬±íÊ¾½øÀàÖ÷Ìå
+        >> *(_cpp_comment                                        // Æ¥Åäµ¥ĞĞ×¢ÊÍ
+            | _access_ctrl                                        // Æ¥Åä·ÃÎÊÈ¨ÏŞ
+            | _class                                            // Æ¥ÅäÇ¶Ì×Àà(µİ¹éÇ¶Ì×£¬ÀíÂÛÉÏN²ãÇ¶Ì×Àà£¬¼ÈÇ¶Ì×ÀàÖĞÒ²¿ÉÄÜ´æÔÚÇ¶Ì×Àà)
+            | _function                                            // Æ¥ÅäÀà³ÉÔ±º¯Êı
         )
-        >> bs::ch_p('}')[self.m_class_action->m_outterClass]    // åŒ¹é…'}'ï¼Œè¡¨ç¤ºå‡ºç±»ä¸»ä½“
-        >> *bs::ch_p(';');                                        // ç±»å®šä¹‰ç»“æŸ
+        >> bs::ch_p('}')[self.m_class_action->m_outterClass]    // Æ¥Åä'}'£¬±íÊ¾³öÀàÖ÷Ìå
+        >> *bs::ch_p(';');                                        // Àà¶¨Òå½áÊø
 
-    /**è§£ææ•´ä¸ª.hæ–‡ä»¶ï¼Œåœ¨ä¸€ä¸ª.hæ–‡ä»¶å†…ï¼Œå¯èƒ½ä¼šå®šä¹‰å¤šä¸ªç±»*/
+    /**½âÎöÕû¸ö.hÎÄ¼ş£¬ÔÚÒ»¸ö.hÎÄ¼şÄÚ£¬¿ÉÄÜ»á¶¨Òå¶à¸öÀà*/
     _root = *(_cpp_comment | _function | _class | bs::anychar_p);
 }

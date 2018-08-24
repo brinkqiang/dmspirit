@@ -8,16 +8,6 @@ IF (WIN32)
     SET(DMOS_NAME "win")
 
     SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" )
-    IF(MSVC)
-        ADD_DEFINITIONS(/bigobj)
-        IF (MSVC_VERSION GREATER_EQUAL "1900")
-            INCLUDE(CheckCXXCompilerFlag)
-            CHECK_CXX_COMPILER_FLAG("/std:c++latest" _cpp_latest_flag_supported)
-            IF (_cpp_latest_flag_supported)
-                ADD_COMPILE_OPTIONS("/std:c++latest")
-            ENDIF()
-    	ENDIF()
-    ENDIF()
 ELSEIF (APPLE)  
     MESSAGE(STATUS "Now is Apple systems")  
 
@@ -33,6 +23,8 @@ ELSEIF (UNIX)
 ENDIF ()
 
 ADD_DEFINITIONS(-DUSE_DMSPIRIT)
+SET(BOOST_VERSION "1.49.0")
+
 IF (WIN32)
     INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/windows)
 ENDIF(WIN32)
@@ -48,12 +40,6 @@ SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 FILE(GLOB_RECURSE DMSPIRIT_SOURCES
-${CMAKE_CURRENT_SOURCE_DIR}/include/*.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/include/*.cc
-${CMAKE_CURRENT_SOURCE_DIR}/include/*.c
-${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp
-${CMAKE_CURRENT_SOURCE_DIR}/include/*.h
-
 ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc
 ${CMAKE_CURRENT_SOURCE_DIR}/src/*.c
