@@ -1,6 +1,6 @@
 #pragma once
 
-#include "boost/spirit/include/classic.hpp"
+#include <boost/spirit/include/classic.hpp>
 #include <list>
 
 namespace bs
